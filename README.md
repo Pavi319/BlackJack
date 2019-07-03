@@ -1,1 +1,2 @@
 # BlackJack
+  startUp game
