@@ -26,6 +26,8 @@ var dealerCardString;
     resultArea = document.getElementById('result-area');
 
 newG.addEventListener('click', function () {
+    var x=document.getElementsByTagName('div');
+    x.innerHTML='';
     startGame();
 });
 
@@ -65,7 +67,7 @@ function startGame() {
     }
     if(playerScore==21)
     {
-        resultArea.html('The player wins!');
+        resultArea.innerHTML='The player wins!';
     }
     showGameStats();
 }
@@ -111,9 +113,11 @@ function dealerPlays() {
 
 function createDeck() {
     var deck = [];
-    var signs = ["Hearts", "Spades", "Diamonds", "Clubs"];
+    var signs = ["Spades","Hearts",  "Diamonds", "Clubs"];
     var values = ["Ace", "Two", "Three", "Four",  "Five","Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen","King"];
     let cardScore=0;
+    let imageX=-17;
+    let imageY=-17;
     for (let i = 0; i < values.length; i++) {
         for (let j = 0; j < signs.length; j++) {
             if(i==0)
@@ -133,7 +137,9 @@ function createDeck() {
             deck.push({
                 value : values[i],
                 sign : signs[j],
-                score: cardScore
+                score: cardScore,
+                imageX: imageX + i*(-229),
+                imageY: imageY + j*(-334)
             })
         }
     }
@@ -201,6 +207,17 @@ function newGame() {
 function cardDeal(myDeck) {
     var rand = Math.floor(Math.random() * myDeck.length);
     let card = myDeck[rand];
+    var div = document.createElement("div");
+    div.style.background='url("image/52_playing_cards.png")';
+    div.style.backgroundRepeat='no-repeat';
+    div.style.width='175px';
+    div.style.height='299px';
+    div.style.padding='2px 29px 21px 9px';
+    console.log(myDeck[rand].imageX,myDeck[rand].imageY)
+    div.style.backgroundPositionX=myDeck[rand].imageX + 'px';
+    div.style.backgroundPositionY=myDeck[rand].imageY + 'px';
+    console.log(div.style.backgroundPositionX)
+    document.body.appendChild(div);
     myDeck.splice(rand, 1);
     return card;
 }
