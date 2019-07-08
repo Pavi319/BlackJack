@@ -6,15 +6,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>BlackJack Game</title>
+    <style>
+        @keyframes rightToLeft{
+    0%{
+        transform:translateX(1000%);
+    }
+    100%{
+        transform:translateX(0%);
+    }
+}
+    html,body{
+        height:100%;
+        margin:0;       
+        background: url('image/blackjack_background.png') ;
+        background-repeat: no-repeat; 
+        background-size: cover; 
+        top:0;
+    }
+    
+    #card-area-player{
+        position: relative;
+        display: flex;        
+        height: 338px;
+    }
+    #card-area-dealer{
+        position: relative;
+        display:flex;
+        height:321px;
+    }
+    .gameButtons{
+        text-align: center;
+        position:relative;
+        height: 150px;
+    }
+    button{
+        height:50px;
+        width:100px;
+        transform: translate(0,150%);
+
+    }
+    #text-area{
+        text-align: center;
+    }
+    </style>
 </head>
 
 <body>
-    <p id= 'text-area'>Welcome to BlackJack!</p>
-    <p id= 'result-area'></p>
-    <button id = "start">Start the BlackJack Game!</button>
-    <button id = "stop">Stop your run here!</button>
-    <button id = "hit">Give me one more card!</button>
-    <button id = "new">New Game!</button>
+    
+    <div class='gameButtons'>
+        <button id="start">Start the BlackJack Game!</button>
+        <button id="stop">Stop your run here!</button>
+        <button id="hit">Give me one more card!</button>
+        <button id="new">New Game!</button>
+    </div>
+        
+        <p id='result-area'></p>
+        <div id='card-area-player'>
+            <span>Player has:</span>
+        </div>
+        <div id='card-area-dealer'>
+            <span>Dealer has:</span>
+        </div>
+        
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="blackjack.js"></script>
 </body>

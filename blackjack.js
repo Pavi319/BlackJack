@@ -2,16 +2,28 @@
 // Blackjack
 //
 
+var mainContainer = document.createElement("div");
+var theCard = document.createElement('div');
+var theFront = document.createElement('div');
+var theBack = document.createElement('div');
+
 var playerCards;
 var dealerCards;
 var deck;
 var playerScore;
 var dealerScore;
-var aceExistence = false;
+var aceExistencePlayer;
+var aceExistenceDealer;
 var playerCardString;
 var dealerCardString;
+var playerStack;
+var dealerStack;
 
+    let cardAreaPlayer=document.getElementById('card-area-player');
+    cardAreaPlayer.style.display = 'none';
 
+    cardAreaDealer=document.getElementById('card-area-dealer');
+    cardAreaDealer.style.display='none';
     let newG = document.getElementById("new");
     newG.style.display = 'none';
 
@@ -22,12 +34,19 @@ var dealerCardString;
 
     let hit = document.getElementById("hit");
     hit.style.display = 'none';
-    textArea = document.getElementById('text-area');
     resultArea = document.getElementById('result-area');
 
 newG.addEventListener('click', function () {
-    var x=document.getElementsByTagName('div');
-    x.innerHTML='';
+    theCard.removeAttribute('style');
+    mainContainer.removeAttribute('style');
+    theFront.removeAttribute('style');
+    theBack.removeAttribute('style');
+    while(cardAreaPlayer.firstChild){
+        cardAreaPlayer.removeChild(cardAreaPlayer.firstChild);
+    }
+    while(cardAreaDealer.firstChild){
+        cardAreaDealer.removeChild(cardAreaDealer.firstChild)
+    }
     startGame();
 });
 
@@ -35,6 +54,10 @@ start.addEventListener('click', function () {
     startGame();
 });
 function startGame() {
+    playerStack=0;
+    dealerStack=0;
+    aceExistencePlayer = false;
+    aceExistenceDealer = false;
     playerCards = [];
     dealerCards = [];
     playerScore = 0;
@@ -46,13 +69,16 @@ function startGame() {
     stop.style.display = 'inline';
     hit.style.display = 'inline';
     newG.style.display = 'none';
+    cardAreaPlayer.innerHTML='Player has:';
+    cardAreaPlayer.style.display='flex';
+    cardAreaDealer.innerHTML='Dealer has:';
+    cardAreaDealer.style.display='flex';
     deck = createDeck();
-    playerCards.push(cardDeal(deck));
-    playerCards.push(cardDeal(deck));
-    dealerCards.push(cardDeal(deck));
-    dealerCards.push(cardDeal(deck));
+    playerCards.push(cardDeal(deck,playerCards));
+    playerCards.push(cardDeal(deck,playerCards));
+    dealerCards.push(cardDeal(deck,dealerCards));
+    dealerCards.push(cardDeal(deck,dealerCards));
 
-    textArea.innerHTML = ' ';
     for (let i = 0; i < playerCards.length; i++) {
         playerCardString += playerCards[i].value + ' of ' + playerCards[i].sign + "<br>";
     }
@@ -69,16 +95,16 @@ function startGame() {
     {
         resultArea.innerHTML='The player wins!';
     }
-    showGameStats();
-}
-
-function showGameStats()
-{
-    textArea.innerHTML = playerCardString +
-        '(Score : ' + playerScore + ')' + '<br><br>' +
-        dealerCardString + '(Score : ' + dealerScore + ')';
 }
 stop.addEventListener('click', function () {
+    if(dealerCards.length>3)
+        mainContainer.style.marginLeft='-335px';
+    else
+        mainContainer.style.marginLeft='-175px';
+
+    theFront.style.left='115px';
+    theBack.style.left='115px'
+    theCard.style.transform='rotateY(180deg)';
     stop.style.display = 'none';
     hit.style.display = 'none';
     newG.style.display = 'inline';
@@ -89,19 +115,17 @@ function dealerPlays() {
     while (dealerScore <= 21) {
         if(dealerCards.length==5)
         {
-            resultArea.innerHTML = 'The dealer wins!'
+            resultArea.innerHTML = 'The dealer wins!';
+            break;
         }
         if (dealerScore <= playerScore) {
-            textArea.innerHTML = ' ';
-            dealerCards.push(cardDeal(deck));
+            dealerCards.push(cardDeal(deck,dealerCards));
             dealerScore += dealerCards[dealerCards.length - 1].score;
-            console.log(dealerScore);
             dealerCardString += dealerCards[dealerCards.length - 1].value +' of '+ dealerCards[dealerCards.length - 1].sign + '<br>';
             if(gameWinner(dealerScore)==true)
                 resultArea.innerHTML='The dealer wins';
             else
                 resultArea.innerHTML='The player wins';
-            showGameStats();
         } else {
             resultArea.innerHTML = 'The dealer wins!'
             break;
@@ -123,7 +147,6 @@ function createDeck() {
             if(i==0)
             {
                 cardScore=11;
-                aceExistence=true;
             }
             else
             {
@@ -146,21 +169,7 @@ function createDeck() {
     return deck;
 }
 
-
-function aceCase(count) {
-    if ( count>21)
-        count-=10
-    aceExistence = false;
-    return count;
-
-}
-
-
-function gameDecision(count) {
-    if(aceExistence==true)
-    {
-        count = aceCase;
-    }
+function gameDecision(count,playerDeck) {
     if (count == 21) {
         return true;
     } else {
@@ -169,11 +178,9 @@ function gameDecision(count) {
 }
 
 hit.addEventListener('click', function () {
-    textArea.innerHTML = ' ';
-    playerCards.push(cardDeal(deck));
+    playerCards.push(cardDeal(deck,playerCards));
     playerCardString += playerCards[playerCards.length - 1].value + ' of ' +  playerCards[playerCards.length - 1].sign + '<br>';
     playerScore += playerCards[playerCards.length - 1].score;
-    showGameStats();
     if(playerScore>=21)
         if(gameWinner(playerScore)==true)
                 {
@@ -201,23 +208,132 @@ function newGame() {
     stop.style.display = 'none';
     hit.style.display = 'none';
     newG.style.display = 'inline';
+    console.log(dealerCards);
+}
+
+function aceCase(count,value) {
+    if ( count+value>21)
+        {
+            count-=10;
+            if(aceExistencePlayer==true)    
+                aceExistencePlayer = false;
+            else
+                if(aceExistenceDealer==true)
+                    aceExistenceDealer = true;
+            console.log(count);
+        }
+        return count;
 
 }
 
-function cardDeal(myDeck) {
+function cardDeal(myDeck,playerDeck) {
     var rand = Math.floor(Math.random() * myDeck.length);
     let card = myDeck[rand];
-    var div = document.createElement("div");
-    div.style.background='url("image/52_playing_cards.png")';
-    div.style.backgroundRepeat='no-repeat';
-    div.style.width='175px';
-    div.style.height='299px';
-    div.style.padding='2px 29px 21px 9px';
-    console.log(myDeck[rand].imageX,myDeck[rand].imageY)
-    div.style.backgroundPositionX=myDeck[rand].imageX + 'px';
-    div.style.backgroundPositionY=myDeck[rand].imageY + 'px';
-    console.log(div.style.backgroundPositionX)
-    document.body.appendChild(div);
+    if(card.value=='Ace' )
+    {
+        if(playerDeck==playerCards)
+        {
+            aceExistencePlayer=true;
+            playerScore=aceCase(playerScore,card.score);
+        }
+        else{
+            aceExistenceDealer=true;
+            dealerScore=aceCase(dealerScore,card.score);
+        }
+    }
+    else
+    {
+        if(aceExistencePlayer==true)
+        {
+                playerScore=aceCase(playerScore,card.score);}
+        else{
+            if(aceExistenceDealer==true)
+                dealerScore=aceCase(dealerScore,card.score);
+        }
+            
+    }
+    generateImages(card,playerDeck);
     myDeck.splice(rand, 1);
     return card;
+}
+
+function generateImages(card, playerDeck) {
+    if (dealerCards.length != 1) {
+        var div = document.createElement("div");
+        div.style.background = 'url("image/52_playing_cards.png")';
+        div.style.backgroundRepeat = 'no-repeat';
+        div.style.width = '177px';
+        div.style.height = '299px';
+        div.style.padding = '3px 35px 22px 9px';
+        div.style.backgroundPositionX = card.imageX + 'px';
+        div.style.backgroundPositionY = card.imageY + 'px';
+        div.style.display = 'flex';
+        div.style.position = 'flex';
+        div.style.animation = '1s ease-out 0s 1 rightToLeft';
+        if (playerDeck == playerCards) {
+            if (playerStack == 1)
+                div.style.marginLeft = -190 + 'px';
+            if (playerStack > 1) {
+                div.style.marginLeft = (-195) + 'px';
+            }
+            cardAreaPlayer.appendChild(div)
+            playerStack++;
+        } else {
+            if (dealerStack > 1) {
+                div.style.marginLeft = (-195) + 'px';
+            }
+            cardAreaDealer.appendChild(div);
+            dealerStack++;
+        }
+    }
+    else
+        dealerSecondCard(card);
+}
+function dealerSecondCard(card)
+{
+    mainContainer.style.position = 'relative';
+    mainContainer.style.width = '177px';
+    mainContainer.style.height = '299px';
+
+
+    theCard.style.position = 'absolute';
+    theCard.style.width='100%';
+    theCard.style.height = '100%';
+    theCard.style.transformStyle='preserve-3d';
+    theCard.style.transition=' all 0.5s ease';
+    theCard.style.animation='1s ease-out 0s 1 rightToLeft';
+
+    theFront.style.position = 'absolute';
+    theFront.style.width='100%';
+    theFront.style.height='100%';
+    theFront.style.backfaceVisibility = 'hidden';
+    theFront.style.background = 'url("image/card_back.png")';
+    theFront.style.padding = '3px 35px 25px 9px';
+    theFront.style.backgroundPosition = '0px 0px';
+    theFront.style.marginLeft ='-190px';
+    theFront.style.top='0px';
+    theFront.style.borderRadius = "8%";
+    theFront.style.display='flex';
+    // theFront.style.left='-334px';
+
+
+    theBack.style.position ='absolute';
+    theBack.style.width='100%';
+    theBack.style.height='100%';
+    theBack.style.backfaceVisibility = 'hidden';
+    theBack.style.background='url("image/52_playing_cards.png")';
+    theBack.style.padding='3px 35px 22px 9px';
+    theBack.style.backgroundPosition = '-17px -17px';
+    theBack.style.display='flex';
+    theBack.style.transform='rotateY(180deg)';
+    theBack.style.marginLeft='-190px';
+    theBack.style.backgroundPositionX = card.imageX + 'px';
+    theBack.style.backgroundPositionY = card.imageY + 'px';
+    // theBack.style.left='-334px';
+
+    cardAreaDealer.appendChild(mainContainer);
+    mainContainer.appendChild(theCard);
+    theCard.appendChild(theFront);
+    theCard.appendChild(theBack);
+    dealerStack++;
 }
