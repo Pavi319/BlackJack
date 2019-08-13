@@ -1,0 +1,37 @@
+/* p{
+    color: red;
+    display: inline;
+    font-size: 30px;
+    margin-left:30px
+}
+div{
+    align-content: center;
+    align-items: center;
+    text-align: center;
+    margin-top: 450px;
+    line-height: 40px;
+}
+button{
+margin-left:50px;
+height: 100px;
+width: 100px;
+} */
+.Container {
+    align-content: center;
+    align-items: center;
+    text-align: center;
+    margin-top: 15em;
+
+}
+.SignUpContainer{
+    display:inline;
+}
+.LoginContainer{
+    display:inline;
+}
+.FirstPageButton{
+    width: 200px;
+}
+.Container p{
+    color: #CC67D1;
+}
