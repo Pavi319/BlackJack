@@ -32,25 +32,25 @@ const controller = (props) => (
                 onClick = {() => props.betMoney(50)}
                 style={{backgroundPosition: '933px -371px',
                 borderRadius: '50%',
-                visibility:  props.visible}}>
+                visibility:  props.visible[0]}}>
             </button>
             <button className={classes.Chip}
                 onClick = {() => props.betMoney(100)}
                 style={{backgroundPosition: '-461px -372px',
                 borderRadius: '50%',
-                visibility:  props.visible}}>
+                visibility:  props.visible[1]}}>
             </button>
             <button className={classes.Chip}
                 onClick = {() => props.betMoney(500)}
                 style={{backgroundPosition: '-461px -586px',
                 borderRadius: '50%',
-                visibility:  props.visible}}>
+                visibility:  props.visible[2]}}>
             </button>
             <button className={classes.Chip}
                 onClick = {() => props.betMoney(1000)}
                 style={{backgroundPosition: '-635px -587px',
                 borderRadius: '50%',
-                visibility: props.visible}}>
+                visibility: props.visible[3]}}>
             </button>
         </div>
         <p>Dealer points: <strong>{props.score['dealerScore']}</strong></p>

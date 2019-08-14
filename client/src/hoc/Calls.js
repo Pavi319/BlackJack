@@ -7,4 +7,5 @@ export default {
     decision: 'http://localhost:5000/game',
     user: 'http://localhost:5000/user',
     delete: 'http://localhost:5000/user/delete',
+    verifyCoins: 'http://localhost:5000/verifyCoins'
 }

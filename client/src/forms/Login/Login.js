@@ -74,7 +74,6 @@ class Login extends Component{
         } else if(this.state.wrongCreditials === true){
             errorMessage = 'The account you have entered does not exist!'
         }
-        console.log(this.state)
         return (
             <form method="POST" /*onSubmit={this.loginUser}*/>
                 {redirect}

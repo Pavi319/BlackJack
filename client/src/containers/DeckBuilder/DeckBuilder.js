@@ -28,22 +28,24 @@ class DeckBuilder extends Component{
         dealerAce: false,
         flip : 'rotateY(0deg)',
         bet: 0,
-        chipsVisibility: 'visible'
+        chipsVisibility:[]
     }
     componentDidMount = async () => {
         // console.log('aici')
         let request = {
+            url: api.playGame,
             method: 'GET',
             headers : {
                 'Content-Type': 'application/json',
-                'Authorization' :'Bearer ' + this.props.jwt
+                'Authorization' :'Bearer ' + this.props.jwt,
+                'userid' : this.props.userId
             },
-            data: this.props.userId
         }
-        axios.get(api.playGame,request)
-        .then(response => {
+        await axios(request)
+        .then( response => {
             this.setState({
-                cardsDeck : response.data.playingDeck
+                cardsDeck : response.data.playingDeck,
+                chipsVisibility: response.data.visibility
             })
         })
         .catch(err => {
@@ -217,14 +219,30 @@ class DeckBuilder extends Component{
     addBetHandler = (betAmount) => {
         let oldBet = this.state.bet;
         oldBet +=betAmount
-        this.setState({
-            bet : oldBet,
-            disabledButtons: [false,true,true,true]
+        let request = {
+            url: api.verifyCoins,
+            method: 'GET',
+            headers : {
+                'Content-Type': 'application/json',
+                'Authorization' :'Bearer ' + this.props.jwt,
+                'userid' : this.props.userId,
+                'betAmount' : oldBet
+            },
+        }
+        axios(request)
+        .then(response => {
+            console.log(response)
+            this.setState({
+                bet : oldBet,
+                disabledButtons: [false,true,true,true],
+                chipsVisibility : response.data.visibility
+            })
         })
+        
+       
         console.log(oldBet);
     }
     render(){
-        console.log(this.state)
         let showOrRedirect = (
             <Aux>
                 <CardBuilder

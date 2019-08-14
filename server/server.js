@@ -99,8 +99,6 @@ app.post('/login', (req,res) => {
 app.post('/register', async (req,res) => {
     let stop = 0;
     const body =JSON.parse(req.body.body)
-    // const body = req.body;
-    // console.log(req.body)
     if(body.password != body.repeatedPassword){
         stop = 1;
     }
@@ -175,7 +173,6 @@ app.post('/register', async (req,res) => {
 })
 
 app.get('/playGame',(req,res) => {
-    console.log(req)
     let newDeck = [];
     let signs = ["Spades","Hearts",  "Diamonds", "Clubs"];
     let values = ["Ace", "Two", "Three", "Four",  "Five","Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen","King"];
@@ -213,10 +210,17 @@ app.get('/playGame',(req,res) => {
         newDeck[i]=newDeck[rand];
         newDeck[rand] = swapAux;
     }
-    // console.log(JSON.stringify(newDeck))
-    return res.send({
-        playingDeck : newDeck
+    const collection = req.app.locals.collection;
+    const id= new ObjectId(req.headers.userid);
+    collection.findOne({_id:id})
+    .then (response => {
+        return res.send({
+            playingDeck : newDeck,
+            visibility: verifyCoinsHandler(response.coins)
+        })
     })
+    // console.log(JSON.stringify(newDeck))
+    
 })
 
 app.post('/confirmRegister/:id/', async(req,res) => {
@@ -246,8 +250,39 @@ app.post('/confirmRegister/:id/', async(req,res) => {
     })
     .catch(error => console.log(error))
 })
+verifyCoinsHandler =(verifyAmount) => {
+    let visibility = []
+    if(verifyAmount < 50){
+        visibility= ['hidden','hidden','hidden','hidden']
+    }
+    else if (verifyAmount < 100){
+        visibility= ['visible','hidden','hidden','hidden']
+    }
+    else if (verifyAmount < 500){
+        visibility= ['visible','visible','hidden','hidden']
+    }
+    else if (verifyAmount < 1000){
+        visibility= ['visible','visible','visible','hidden']
+    }
+    else {
+        visibility= ['visible','visible','visible','visible']
+    }
+    return visibility;
+}
+app.get('/verifyCoins',(req,res)=> {
+    const collection = req.app.locals.collection;
+    const id= new ObjectId(req.headers.userid);
+    collection.findOne({_id:id})
+    .then(response => {
+        const verifyAmount = response.coins - req.headers.betamount;
+        console.log(verifyAmount)
+        res.send({
+            visibility:verifyCoinsHandler(verifyAmount)
+    })
+    })
+})
+
 app.use(verifyToken,(req,res,next) => {
-    // console.log(req.data)
    if(req.method =='POST'){
        jwt.verify(req.token,'secretKey', (err) => {
            if(err){
@@ -442,9 +477,7 @@ app.post('/newGame', (req,res) => {
 })
 
 function verifyToken (req,res,next){
-    // console.log(req.data)
     const bearerHeader = req.headers.authorization;
-    // console.log(bearerHeader)
     if(typeof bearerHeader !== 'undefined'){
         console.log('aici!')
         const bearer = bearerHeader.split(' ')
@@ -455,4 +488,3 @@ function verifyToken (req,res,next){
         res.sendStatus(403)
     }
 }
-
