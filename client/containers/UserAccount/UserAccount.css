@@ -1,0 +1,18 @@
+.Box{
+    color:#CC67D1;
+    border: 2px pink solid;
+    padding: 0px 50px 0px 50px;
+    margin: 10em 1em;
+    display:inline-block;
+    align-content: center;
+    width:auto;
+    text-align: center; 
+}
+.Area p {
+    text-align: center;
+    font: 35px Georgia;
+}
+.Area{
+    position: relative;
+    padding: 0px 50px 30px 50px
+}

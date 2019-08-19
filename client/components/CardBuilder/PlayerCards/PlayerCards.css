@@ -1,0 +1,13 @@
+.theCard{
+    position: absolute;
+    display:inline;
+    width: 177px;
+    height: 299px;
+    backface-visibility: hidden;
+    background: url("../../../assets/52_playing_cards.png");
+    padding: 3px 35px 22px 9px;
+    background-position: -17px -17px;
+    display: flex;
+    margin-left:20px;
+    margin-top: 220px;
+}

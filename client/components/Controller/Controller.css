@@ -1,0 +1,52 @@
+.ButtonContainer{
+    width: 100%;
+    margin:auto;
+    height:120px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-top: 100px;
+}
+
+.ButtonContainer button{
+    width:auto;
+    height: auto;
+    text-align: center;
+    color:red;
+    background-color: greenyellow;
+}
+
+.ButtonContainer button:disabled{
+    color:blueviolet;
+    background-color: red;
+}
+
+.BetButtonContainer{
+    width: 100%;
+    margin:auto;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-top: -50px;
+    display :flex;
+    justify-content: center;
+    position: absolute;
+}
+/* 
+.BetButtonContainer button{
+    width:auto;
+    height: auto;
+    text-align: center;
+    color:red;
+    background-color: greenyellow;
+}
+
+.BetButtonContainer button:disabled{
+    color:blueviolet;
+    background-color: red;
+} */
+.BetButtonContainer .Chip {
+    background: url("../../assets/chips_full.png");
+    width:124px;
+    height:124px;
+}

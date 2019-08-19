@@ -1,0 +1,63 @@
+@keyframes rightToLeft{
+    0%{
+        transform:translateX(1000%);
+    }
+    100%{
+        transform:translateX(0%);
+    }
+}
+
+.theCard{
+    position: absolute;
+    display:inline;
+    width: 177px;
+    height: 299px;
+    backface-visibility: hidden;
+    background: url("../../../assets/52_playing_cards.png");
+    padding: 3px 35px 22px 9px;
+    display: flex;
+    margin-left:20px;
+    margin-top: 550px;
+}
+
+.mainContainer{
+    position: absolute;
+    width: 177px;
+    height: 299px;
+    margin-top: 550px;
+    margin-left: 255px;
+}
+.secondCard{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: all 0.5 ease ;
+    animation: 1s ease-out 0s 1 rightToLeft  ;
+    background-position: -17px -17px;
+}
+.theBack{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    background: url("../../../assets/52_playing_cards.png");
+    padding: 3px 35px 22px 9px;
+    background-position: -17px -17px;
+    display: flex;
+    transform: rotateY(180deg);
+    margin-left: -190px;
+}
+.theFront{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    background: url('../../../assets/card_back.png');
+    padding: 3px 35px 25px 9px;
+    background-position: 0px 0px;
+    margin-left: -190px;
+    top: 0px;
+    border-radius: 8%;
+    display: flex;
+}
