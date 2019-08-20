@@ -86,7 +86,7 @@ class UserAccount extends Component {
             maybeRedirect = <Redirect to = {'/login'}/>
         }
         return (
-            <div>
+            <div style={{textAlign: 'center'}}>
                 {maybeRedirect}
             </div>
         )

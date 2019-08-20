@@ -17,12 +17,12 @@ class Router extends Component {
                 this.props.jwt ? (
                 <div>
                     <Switch>
-                        <Route path ='/' exact component = {FirstPage}/>
                         <Route path = '/playGame' exact component = {DeckBuilder}/>
                         <Route path = '/login' exact component = {Login}/>
                         <Route path = '/register' exact component = {Register}/>
                         <Route path = '/confirmRegister/:code' component = {ConfirmRegister}/>
                         <Route path ='/user' component = {UserAccount}/>
+                        <Route path ='/' exact component = {FirstPage}/>
                     </Switch>
                 </div>) :( 
                     <Switch>

@@ -3,6 +3,7 @@ import axios from 'axios';
 import {  Redirect } from 'react-router-dom';
 import {connect} from 'react-redux'
 import Cookies from 'universal-cookie';
+import classes from './Login.css'
 class Login extends Component{
     state = {
         email: "",
@@ -24,7 +25,14 @@ class Login extends Component{
         })
     }
 
-    loginUser = () => {
+    singUpHandler = async () => {
+        await this.setState({
+            redirectPath: "register"
+        })
+        console.log(this.state.redirectPath)
+    }
+
+    loginUser =  () => {
         const creds = {
             ...this.state
         }
@@ -36,9 +44,9 @@ class Login extends Component{
             withCredentials: true,
             body: JSON.stringify(creds),
         }
-        axios.post('http://localhost:5000/login',request)
-             .then(response => {
-                    this.setState({
+         axios.post('http://localhost:5000/login',request)
+             .then( response => {
+                     this.setState({
                         redirectPath: response.data.redirect,
                         unRegistered : response.data.unRegistered,
                         wrongCreditials : response.data.wrongCreditials,
@@ -61,12 +69,8 @@ class Login extends Component{
         let errorMessage= null;
         let redirect = null;
         if(this.state.redirectPath !== '') {
-            if(this.state.redirectPath === 'playGame')
-            redirect = <Redirect to = {'/playGame/'}/>
-        }
-        else {
-            redirect = <Redirect to = '/login' />
-            // this.setState({wrongCreditials: true})
+            redirect= <Redirect push to = {`/${this.state.redirectPath}`}/>
+            console.log(redirect)            
         }
         if(this.state.unRegistered === true && this.state.redirectPath === 'login')
         {
@@ -75,7 +79,7 @@ class Login extends Component{
             errorMessage = 'The account you have entered does not exist!'
         }
         return (
-            <form method="POST" /*onSubmit={this.loginUser}*/>
+            <form method="POST" className={classes.Form}>
                 {redirect}
                 <h1>LOG IN</h1>
                 {errorMessage}
@@ -94,6 +98,8 @@ class Login extends Component{
                     onChange = {this.passChangeHandler}
                     />
                 <button type="button" onClick={this.loginUser}>Submit!</button>
+                <p>Are you new? Please sing up!</p>
+                <button type='button' onClick={this.singUpHandler}>Sign Up!</button>
             </form>
         )
     }

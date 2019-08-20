@@ -28,7 +28,11 @@ class DeckBuilder extends Component{
         dealerAce: false,
         flip : 'rotateY(0deg)',
         bet: 0,
-        chipsVisibility:[]
+        chipsVisibility:[],
+        winAmountXBet: 2,
+        showDealer: false,
+        splitCase: false,
+        showPlayer: false
     }
     componentDidMount = async () => {
         // console.log('aici')
@@ -54,6 +58,10 @@ class DeckBuilder extends Component{
         
         axios.interceptors.request.use((config) => {
             console.log(config);
+            const cookies = new Cookies();
+            if(!cookies.get('jwt')) {
+                this.state.show = false;
+            }           
             return config;
         },(error) => {
             console.log('error');
@@ -61,6 +69,10 @@ class DeckBuilder extends Component{
         })
         axios.interceptors.response.use((config) => {
             console.log(config)
+            const cookies = new Cookies();
+            if(!cookies.get('jwt')) {
+                this.state.show = false;
+            }         
             return config;
         },(error) => {
             this.setState({show: false})
@@ -85,7 +97,7 @@ class DeckBuilder extends Component{
             data: this.state,
         };
         console.log(request.headers)
-        axios(request)
+        await axios(request)
         .then(response => {
             this.setState({
                 cardsDeck: response.data.playingDeck,
@@ -98,18 +110,25 @@ class DeckBuilder extends Component{
                     dealerScore: response.data.dealerScore
                 },
                 disabledButtons: [true,false,false,true],
-                chipsVisibility: 'hidden'
+                chipsVisibility: ['hidden','hidden','hidden','hidden'],
+                splitCase : response.data.splitCase,
+                showPlayer: true
             })
         })
         .catch(err => {
             console.log(err)
         })
-        if(this.state.playScore['dealerScore'] === 21 || this.state.playScore['playerScore'] === 21  ){
+        console.log(this.state.playScore['dealerScore'],this.state.playScore['playerScore'])
+        if(this.state.playScore['playerScore'] === 21  ){
             this.setState({
-                disabledButtons: [true,true,true,false]
+                disabledButtons: [true,true,true,false],
+                winAmountXBet: 2.2
             })
+            this.showScore = true;
         }
-      }
+        console.log(this.state.splitCase)
+
+    }
     addCardHandler = async () => {  
         let request = {
             url: api.addCard,
@@ -156,14 +175,15 @@ class DeckBuilder extends Component{
             console.log(error)
         })
     }
-    newGameHandler =async () => {
+    newGameHandler = () => {
         this.showScore = true;
         let request = {
             url: api.newGame,
             method: 'POST',
             headers : {
                 'Content-Type': 'application/json',
-                'Authorization' :'Bearer ' + this.props.jwt
+                'Authorization' :'Bearer ' + this.props.jwt,
+                'userid' : this.props.userId
             },
             data: this.state,
         }
@@ -183,7 +203,11 @@ class DeckBuilder extends Component{
                 disabledButtons: [true,true,true,true],
                 flip: 'rotateY(0deg)',
                 bet: 0,
-                chipsVisibility: 'visible'
+                chipsVisibility: response.data.visibility,
+                showDealer : false,
+                winAmountXBet: 2,
+                splitCase: false,
+                showPlayer: false
             })
         })
         this.showScore = false;
@@ -211,7 +235,8 @@ class DeckBuilder extends Component{
                     dealerScore: response.data.dealerScore
                 },
                 disabledButtons: [true,true,true,false],
-                flip: 'rotateY(180deg)'
+                flip: 'rotateY(180deg)',
+                showDealer: true
             })
         })
         this.showScore = true;        
@@ -248,6 +273,7 @@ class DeckBuilder extends Component{
                 <CardBuilder
                     playingCards={this.state.playCards}
                     flip = {this.state.flip}
+                    splitCase= {this.state.splitCase}
                 />
                 <Controller
                     cardAdded={this.addCardHandler}
@@ -259,6 +285,9 @@ class DeckBuilder extends Component{
                     betMoney = {this.addBetHandler}
                     bet={this.state.bet}
                     visible = {this.state.chipsVisibility}
+                    showDealer = {this.state.showDealer}
+                    splitCase = {this.state.splitCase}
+                    showPlayer = {this.state.showPlayer}
                 />
                 <GameDecision
                     decision={this.state}
@@ -268,8 +297,7 @@ class DeckBuilder extends Component{
                     bet = {this.props.bet}/>
             </Aux>
         )
-        const cookies = new Cookies();
-        if(this.state.show === false || !cookies.get('jwt') ){
+        if(this.state.show === false){
             showOrRedirect = <Redirect to = {'/login'} />
         }
             return(

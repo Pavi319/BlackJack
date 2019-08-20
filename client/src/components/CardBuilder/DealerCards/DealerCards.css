@@ -61,3 +61,30 @@
     border-radius: 8%;
     display: flex;
 }
+@media only screen and (max-width:700px){
+    .theFront{
+        transform: scale(0.8,0.8);
+    }
+    .theCard{
+        transform: scale(0.8,0.8);
+    }
+    .theBack{
+        transform:rotateY(180deg) scale(0.8,0.8);
+    }
+}
+
+@media only screen and (max-width:450px){
+    .theFront{
+        transform: scale(0.5,0.5);
+    }
+    .theCard{
+        transform: scale(0.5,0.5);
+        margin-top:275px
+    }
+    .theBack{
+        transform:rotateY(180deg) scale(0.5,0.5);
+    }
+    .mainContainer{
+        margin-top:275px;
+    }
+}

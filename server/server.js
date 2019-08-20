@@ -8,11 +8,10 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
 const bcrypt = require('bcrypt');
 const nodeMailer = require('nodemailer')
-const axios = require('axios'); 
 const oneDay = 60*60*24*1000;
 let playerAce=false;
 let dealerAce = false;
-
+let splitCase = false;
 
 app.use(bodyParser.json());
 app.use(cors())
@@ -211,6 +210,7 @@ app.get('/playGame',(req,res) => {
         newDeck[rand] = swapAux;
     }
     const collection = req.app.locals.collection;
+    console.log(req.headers.userid)
     const id= new ObjectId(req.headers.userid);
     collection.findOne({_id:id})
     .then (response => {
@@ -319,13 +319,12 @@ app.post('/user/delete',(req,res) => {
 app.post('/game/gameWon',(req,res) => {
     const collection = req.app.locals.collection;
     const id= new ObjectId(req.body.userId);
-    console.log(req.body.decision.bet)
     collection.findOne({_id: id})
         .then(response => {
             const oldGameWon = response.gamesWon;
             const oldCoins = response.coins;
             collection.update({_id:id},
-                {$set : {gamesWon: oldGameWon + 1, coins: oldCoins + 2*req.body.decision.bet}})
+                {$set : {gamesWon: oldGameWon + 1, coins: oldCoins + req.body.decision.winAmountXBet*req.body.decision.bet}})
         })
         .catch(error => console.log(error))
 })
@@ -364,7 +363,9 @@ app.post('/startGame',(req,res) => {
         newPlayerScore+=card.score;
     })
 
-
+    if(firstPlayerCard.value === secondPlayerCard.value){
+        splitCase = true;
+    }
     newDealerCards = [...newPlayerCards];
     const firstDealerCard = newDealerCards.pop()
     dealerCards.push(firstDealerCard);
@@ -394,6 +395,7 @@ app.post('/startGame',(req,res) => {
         dealerCards: dealerCards,
         playerScore: newPlayerScore,
         dealerScore: newDealerScore,
+        splitCase: splitCase
     })
     
 })
@@ -421,27 +423,26 @@ app.post('/addCard',(req,res) => {
 })
 
 app.post('/stopGame', (req,res) => {
-    let newScore = 0;
     let newCards = [];
     const body = req.body;
     let deck = [...body.cardsDeck]
     let oldScore = body.playScore.dealerScore;
     let oldCards = [...body.playCards.dealerCards];
-    while(oldScore + newScore <= body.playScore.playerScore){
+    while(oldScore <= body.playScore.playerScore){
         newCards.push(deck.pop())
-        newScore += newCards[newCards.length-1].score;
+        oldScore += newCards[newCards.length-1].score;
         if(newCards[newCards.length-1].value === 'Ace'){
             dealerAce = true
+        }
+        if(oldScore > 21 && dealerAce === true){
+            oldScore -= 10;
+            dealerAce = false;
         }         
     }
     newCards.forEach(card => {
         oldCards.push(card);            
     });
-    oldScore+=newScore;
-    if(oldScore > 21 && dealerAce === true){
-        oldScore -= 10;
-        dealerAce = false;
-    }
+   
     res.send({
         cardsDeck : deck,
         dealerCards : oldCards,
@@ -450,6 +451,7 @@ app.post('/stopGame', (req,res) => {
 })
 
 app.post('/newGame', (req,res) => {
+    playerAce = dealerAce = splitCase = false;
     let usedCards= [];
     const body = req.body;
     let remainingCards = [...body.cardsDeck];
@@ -471,8 +473,14 @@ app.post('/newGame', (req,res) => {
         remainingCards[i]=remainingCards[rand];
         remainingCards[rand] = swapAux;
     }
-    res.send({
-        cardsDeck : remainingCards
+    const collection = req.app.locals.collection;
+    const id= new ObjectId(req.headers.userid);
+    collection.findOne({_id:id})
+    .then(response => {
+        res.send({
+            visibility:verifyCoinsHandler(response.coins),
+            cardsDeck : remainingCards
+        })
     })
 })
 

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './Register.css'
 import axios from 'axios';
-
+import {Redirect} from 'react-router-dom';
+import classes from './Register.css'
 class Register extends Component { 
     state = {
         username:'',
@@ -10,7 +11,8 @@ class Register extends Component {
         repeatedPassword :'',
         samePassword: false,
         alreadyExists: false,
-        message: null
+        message: null,
+        redirect : ''
     }
 
     usernameChangeHandler = (event) => {
@@ -34,6 +36,12 @@ class Register extends Component {
     repeatPassChangeHandler = (event) => {
         this.setState({
             repeatedPassword : event.target.value
+        })
+    }
+
+    loginHandler =async () => {
+        await this.setState({
+            redirect: 'login'
         })
     }
 
@@ -61,7 +69,11 @@ class Register extends Component {
             })
     }
     render(){
+        let redirect = null;
         let errorMessage= null;
+        if(this.state.redirect !== ''){
+            redirect = <Redirect to = {`/${this.state.redirect}`}/>
+        }
         if (this.state.alreadyExists !== false)
         {
             errorMessage = 'There is already an account with this email!';
@@ -71,8 +83,9 @@ class Register extends Component {
             errorMessage = 'Passwords are not the same!';
         }
         return (
-            <form method="POST">
+            <form method="POST" className={classes.Form}>
                 <h1>REGISTER</h1>
+                {redirect}
                 {errorMessage}
                 {this.state.message}
                 <p>Username</p>
@@ -104,6 +117,8 @@ class Register extends Component {
                     onChange = {this.repeatPassChangeHandler}
                     />
                 <button type = "button" onClick={this.registerUser}>Submit!</button>
+                <p>You already have an account?</p><br/>
+                <button type='button' onClick={this.loginHandler}>Login!</button>
             </form>
         )                        
     }

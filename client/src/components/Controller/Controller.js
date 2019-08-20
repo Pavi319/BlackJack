@@ -25,9 +25,13 @@ const controller = (props) => (
             onClick={() => props.newGame()}
             disabled={props.disabledButtons[3]}
             >New Game!</button>
+            {
+                (props.splitCase) ? 
+                (<button>Split!</button>) : null
+            }
         </div>
         <div className={classes.BetButtonContainer}>
-            <p>Total bet:{props.bet}</p>
+            <p className = {classes.TotalBet}>Total bet:{props.bet}</p>
             <button className={classes.Chip}
                 onClick = {() => props.betMoney(50)}
                 style={{backgroundPosition: '933px -371px',
@@ -53,8 +57,14 @@ const controller = (props) => (
                 visibility: props.visible[3]}}>
             </button>
         </div>
-        <p>Dealer points: <strong>{props.score['dealerScore']}</strong></p>
-        <p>Player points:<strong>{props.score['playerScore']}</strong></p>
+        <div className = {classes.PContainer}>
+            {(props.showPlayer) ? (<p>Player points:<strong>{props.score['playerScore']}</strong></p>) : null }
+            {
+                (props.showDealer) ? 
+                ( <p>Dealer points: <strong>{props.score['dealerScore']}</strong></p> )
+                : null
+            }
+        </div>
     </Aux>
 )
 
