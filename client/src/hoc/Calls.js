@@ -1,12 +1,14 @@
+const host = 'http://localhost:5000'
+
 export default {
-    playGame: 'http://localhost:5000/playGame',
-    startGame: 'http://localhost:5000/startGame',
-    addCard: 'http://localhost:5000/addCard',
-    newGame: 'http://localhost:5000/newGame',
-    stopGame: 'http://localhost:5000/stopGame',
-    decision: 'http://localhost:5000/game',
-    user: 'http://localhost:5000/user',
-    delete: 'http://localhost:5000/user/delete',
-    verifyCoins: 'http://localhost:5000/verifyCoins',
-    login: 'http://localhost:5000/login'
+    playGame:  host + '/playGame',
+    startGame: host + '/startGame',
+    addCard: host + '/addCard',
+    newGame: host + '/newGame',
+    stopGame: host + '/stopGame',
+    decision: host + '/game',
+    user: host + '/user',
+    delete: host + '/delete',
+    verifyCoins: host + '/verifyCoins',
+    login: host + '/login'
 }

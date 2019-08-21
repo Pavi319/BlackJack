@@ -9,7 +9,7 @@ import axios from 'axios';
 import api from '../../hoc/Calls'
 import {connect} from 'react-redux'
 import Cookies from 'universal-cookie'
-
+import request from '../../hoc/Request'
 class DeckBuilder extends Component{
     showScore = false; 
     state={
@@ -35,18 +35,13 @@ class DeckBuilder extends Component{
         showPlayer: false
     }
     componentDidMount = async () => {
-        // console.log('aici')
-        let request = {
-            url: api.playGame,
-            method: 'GET',
-            headers : {
-                'Content-Type': 'application/json',
-                'Authorization' :'Bearer ' + this.props.jwt,
-                'userid' : this.props.userId
-            },
-        }
+        request.url = api.playGame;
+        request.method = 'GET';
+        request.headers.Authorization='Bearer ' + this.props.jwt
+        console.log(request)
         await axios(request)
         .then( response => {
+            console.log(response)
             this.setState({
                 cardsDeck : response.data.playingDeck,
                 chipsVisibility: response.data.visibility
@@ -57,11 +52,7 @@ class DeckBuilder extends Component{
         })
         
         axios.interceptors.request.use((config) => {
-            console.log(config);
-            const cookies = new Cookies();
-            if(!cookies.get('jwt')) {
-                this.state.show = false;
-            }           
+            console.log(config);     
             return config;
         },(error) => {
             console.log('error');
@@ -86,16 +77,10 @@ class DeckBuilder extends Component{
     }
     
     startGameHandler = async () => {
-        let request = {
-            method: 'POST',
-            url: api.startGame,
-            headers : {
-                'Content-Type': 'application/json',
-                'Authorization' :'Bearer ' + this.props.jwt,
-                'UserId' : this.props.userId
-            },
-            data: this.state,
-        };
+        request.url = api.startGame;
+        request.method = 'POST';
+        request.headers.Authorization='Bearer ' + this.props.jwt
+        request.data = this.state
         console.log(request.headers)
         await axios(request)
         .then(response => {
@@ -130,15 +115,10 @@ class DeckBuilder extends Component{
 
     }
     addCardHandler = async () => {  
-        let request = {
-            url: api.addCard,
-            method: 'POST',
-            headers : {
-                'Content-Type': 'application/json',
-                'Authorization' :'Bearer ' + this.props.jwt,
-            },
-            data: this.state,
-        }
+        request.url = api.addCard;
+        request.method = 'POST';
+        request.headers.Authorization='Bearer ' + this.props.jwt;
+        request.data = this.state;
         axios(request)
         .then(response => {
             console.log(response)
@@ -177,16 +157,10 @@ class DeckBuilder extends Component{
     }
     newGameHandler = () => {
         this.showScore = true;
-        let request = {
-            url: api.newGame,
-            method: 'POST',
-            headers : {
-                'Content-Type': 'application/json',
-                'Authorization' :'Bearer ' + this.props.jwt,
-                'userid' : this.props.userId
-            },
-            data: this.state,
-        }
+        request.url = api.newGame;
+        request.method = 'POST';
+        request.headers.Authorization='Bearer ' + this.props.jwt
+        request.data = this.state
         axios(request)
         .then(response => {
             console.log(response)
@@ -213,15 +187,10 @@ class DeckBuilder extends Component{
         this.showScore = false;
     }
     stopGameHandler =async () => {
-        let request = {
-            url:api.stopGame,
-            method: 'POST',
-            headers : {
-                'Content-Type': 'application/json',
-                'Authorization' :'Bearer ' + this.props.jwt,
-            },
-            data: this.state,
-        }
+        request.url = api.stopGame;
+        request.method = 'POST';
+        request.headers.Authorization='Bearer ' + this.props.jwt
+        request.data = this.state
         axios(request)
         .then(response => {
             this.setState({
