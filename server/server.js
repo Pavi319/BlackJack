@@ -30,38 +30,6 @@ database.confirmRegister(app);
 
 playGame.playGame(app);
 
-verifyCoinsHandler =(verifyAmount) => {
-    let visibility = []
-    if(verifyAmount < 50){
-        visibility= ['hidden','hidden','hidden','hidden']
-    }
-    else if (verifyAmount < 100){
-        visibility= ['visible','hidden','hidden','hidden']
-    }
-    else if (verifyAmount < 500){
-        visibility= ['visible','visible','hidden','hidden']
-    }
-    else if (verifyAmount < 1000){
-        visibility= ['visible','visible','visible','hidden']
-    }
-    else {
-        visibility= ['visible','visible','visible','visible']
-    }
-    return visibility;
-}
-app.get('/verifyCoins',(req,res)=> {
-    const collection = req.app.locals.collection;
-    const id= new ObjectId(req.headers.userid);
-    collection.findOne({_id:id})
-    .then(response => {
-        const verifyAmount = response.coins - req.headers.betamount;
-        console.log(verifyAmount)
-        res.send({
-            visibility:verifyCoinsHandler(verifyAmount)
-    })
-    })
-})
-
 app.use(verifyToken,(req,res,next) => {
    if(req.method =='POST'){
        jwt.verify(req.token,'secretKey', (err) => {

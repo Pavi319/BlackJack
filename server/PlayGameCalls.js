@@ -38,16 +38,17 @@ for (let i = 0; i < values.length; i++) {
         // if(cardsInPlay === 0){
         //     cardsInPlay = Math.floor(Math.random() * (newDeck.length / 2))
         // }
-        for(let i=0;i<newDeck.length;i++)
+        
+    }
+}
+playGame = (app) => {app.get('/playGame',verifyToken,(req,res) => {
+    for(let i=0;i<newDeck.length;i++)
         {
             let rand = Math.floor(Math.random() * newDeck.length);
             let swapAux = newDeck[i];
             newDeck[i]=newDeck[rand];
             newDeck[rand] = swapAux;
         }
-    }
-}
-playGame = (app) => {app.get('/playGame',verifyToken,(req,res) => {
     const collection = req.app.locals.collection;
     var decoded = jwt.verify(req.token,'secretKey')
     const id= new ObjectId(decoded.response._id);
@@ -55,7 +56,7 @@ playGame = (app) => {app.get('/playGame',verifyToken,(req,res) => {
     .then (response => {
         res.send({
             playingDeck : newDeck,
-            visibility: verifyCoinsHandler(response.coins),
+            coins: response.coins
             // cardsTillRe
         })
     })
@@ -75,7 +76,6 @@ app.post('/startGame',verifyToken,(req,res) => {
     let playerCards = [];
     let dealerCards = [];
 
-    console.log(req.body)
     const firstPlayerCard = newPlayerCards.pop()
     playerCards.push(firstPlayerCard);
     const secondPlayerCard = newPlayerCards.pop()
@@ -105,24 +105,25 @@ app.post('/startGame',verifyToken,(req,res) => {
 
     const collection = req.app.locals.collection;
     const bet = req.body.bet
+    console.log(req.body)
     var decoded = jwt.verify(req.token,'secretKey')
     const id= new ObjectId(decoded.response._id);
     collection.findOne({_id:id})
     .then(response => {
-            const oldCoins = response.coins;
+            const oldCoins = response.coins - bet;
+            console.log(bet)
             collection.update({_id:id},
-            {$set : {coins: oldCoins - bet}})
+            {$set : {coins: oldCoins}})
+            res.send({
+                playingDeck: newDealerCards,
+                playerCards: playerCards,
+                dealerCards: dealerCards,
+                playerScore: newPlayerScore,
+                dealerScore: newDealerScore,
+                splitCase: splitCase,
+                coins : oldCoins
+            })
     })
-
-    res.send({
-        playingDeck: newDealerCards,
-        playerCards: playerCards,
-        dealerCards: dealerCards,
-        playerScore: newPlayerScore,
-        dealerScore: newDealerScore,
-        splitCase: splitCase
-    })
-    
 })
 }
 addCard = (app) => {
@@ -209,8 +210,8 @@ newGame = (app) => {
         collection.findOne({_id:id})
         .then(response => {
             res.send({
-                visibility:verifyCoinsHandler(response.coins),
-                cardsDeck : remainingCards
+                cardsDeck : remainingCards,
+                coins: response.coins
             })
         })
     })

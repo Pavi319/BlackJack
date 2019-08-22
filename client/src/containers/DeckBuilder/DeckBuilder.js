@@ -9,7 +9,7 @@ import axios from 'axios';
 import api from '../../hoc/Calls'
 import {connect} from 'react-redux'
 import Cookies from 'universal-cookie'
-import request from '../../hoc/Request'
+
 class DeckBuilder extends Component{
     showScore = false; 
     state={
@@ -27,32 +27,35 @@ class DeckBuilder extends Component{
         playerAce: false,
         dealerAce: false,
         flip : 'rotateY(0deg)',
-        bet: 0,
         chipsVisibility:[],
-        winAmountXBet: 2,
-        showDealer: false,
-        splitCase: false,
-        showPlayer: false
+        showPlayer: false,
+        showDealer : false,
+        bet: 0,
+        winAmountXBet: 2
     }
     componentDidMount = async () => {
-        request.url = api.playGame;
-        request.method = 'GET';
-        request.headers.Authorization='Bearer ' + this.props.jwt
-        console.log(request)
+        let request = {
+            url: api.playGame,
+            method: 'GET',
+            headers : {
+                'Content-Type': 'application/json',
+                'Authorization' :'Bearer ' + this.props.jwt,
+                'userid' : this.props.userId
+            },
+        }
         await axios(request)
         .then( response => {
-            console.log(response)
             this.setState({
+                bet: this.props.bet,
                 cardsDeck : response.data.playingDeck,
-                chipsVisibility: response.data.visibility
             })
+            this.props.saveAccountCoins(response.data.coins)
         })
         .catch(err => {
             console.log(err)
         })
-        
         axios.interceptors.request.use((config) => {
-            console.log(config);     
+            console.log(config);
             return config;
         },(error) => {
             console.log('error');
@@ -60,10 +63,6 @@ class DeckBuilder extends Component{
         })
         axios.interceptors.response.use((config) => {
             console.log(config)
-            const cookies = new Cookies();
-            if(!cookies.get('jwt')) {
-                this.state.show = false;
-            }         
             return config;
         },(error) => {
             this.setState({show: false})
@@ -74,16 +73,25 @@ class DeckBuilder extends Component{
             cookies.remove('userId');
             return Promise.reject(error);
         })
+        console.log(this.props.coins)
+        this.verifyCoinsVisibility(this.props.coins)
     }
     
     startGameHandler = async () => {
-        request.url = api.startGame;
-        request.method = 'POST';
-        request.headers.Authorization='Bearer ' + this.props.jwt
-        request.data = this.state
+        let request = {
+            method: 'POST',
+            url: api.startGame,
+            headers : {
+                'Content-Type': 'application/json',
+                'Authorization' :'Bearer ' + this.props.jwt,
+                'UserId' : this.props.userId
+            },
+            data: this.state
+        };
         console.log(request.headers)
-        await axios(request)
+        axios(request)
         .then(response => {
+            console.log(response.data)
             this.setState({
                 cardsDeck: response.data.playingDeck,
                 playCards : {
@@ -96,29 +104,29 @@ class DeckBuilder extends Component{
                 },
                 disabledButtons: [true,false,false,true],
                 chipsVisibility: ['hidden','hidden','hidden','hidden'],
-                splitCase : response.data.splitCase,
-                showPlayer: true
+                showPlayer: true,
             })
         })
         .catch(err => {
             console.log(err)
         })
-        console.log(this.state.playScore['dealerScore'],this.state.playScore['playerScore'])
         if(this.state.playScore['playerScore'] === 21  ){
             this.setState({
                 disabledButtons: [true,true,true,false],
                 winAmountXBet: 2.2
             })
-            this.showScore = true;
         }
-        console.log(this.state.splitCase)
-
-    }
+      }
     addCardHandler = async () => {  
-        request.url = api.addCard;
-        request.method = 'POST';
-        request.headers.Authorization='Bearer ' + this.props.jwt;
-        request.data = this.state;
+        let request = {
+            url: api.addCard,
+            method: 'POST',
+            headers : {
+                'Content-Type': 'application/json',
+                'Authorization' :'Bearer ' + this.props.jwt,
+            },
+            data: this.state,
+        }
         axios(request)
         .then(response => {
             console.log(response)
@@ -157,10 +165,16 @@ class DeckBuilder extends Component{
     }
     newGameHandler = () => {
         this.showScore = true;
-        request.url = api.newGame;
-        request.method = 'POST';
-        request.headers.Authorization='Bearer ' + this.props.jwt
-        request.data = this.state
+        let request = {
+            url: api.newGame,
+            method: 'POST',
+            headers : {
+                'Content-Type': 'application/json',
+                'Authorization' :'Bearer ' + this.props.jwt,
+                'userid' : this.props.userId
+            },
+            data: this.state,
+        }
         axios(request)
         .then(response => {
             console.log(response)
@@ -176,21 +190,27 @@ class DeckBuilder extends Component{
                     },
                 disabledButtons: [true,true,true,true],
                 flip: 'rotateY(0deg)',
-                bet: 0,
-                chipsVisibility: response.data.visibility,
-                showDealer : false,
-                winAmountXBet: 2,
-                splitCase: false,
-                showPlayer: false
+                showPlayer: false,
+                showDealer: false,
+                bet:0
             })
-        })
+            console.log(response.data.coins)
+        this.props.saveAccountCoins(response.data.coins)
+        this.props.saveBetValue(0)
+        this.verifyCoinsVisibility(response.data.coins)
+    })
         this.showScore = false;
     }
     stopGameHandler =async () => {
-        request.url = api.stopGame;
-        request.method = 'POST';
-        request.headers.Authorization='Bearer ' + this.props.jwt
-        request.data = this.state
+        let request = {
+            url:api.stopGame,
+            method: 'POST',
+            headers : {
+                'Content-Type': 'application/json',
+                'Authorization' :'Bearer ' + this.props.jwt,
+            },
+            data: this.state,
+        }
         axios(request)
         .then(response => {
             this.setState({
@@ -210,31 +230,46 @@ class DeckBuilder extends Component{
         })
         this.showScore = true;        
     }
-    addBetHandler = (betAmount) => {
-        let oldBet = this.state.bet;
-        oldBet +=betAmount
-        let request = {
-            url: api.verifyCoins,
-            method: 'GET',
-            headers : {
-                'Content-Type': 'application/json',
-                'Authorization' :'Bearer ' + this.props.jwt,
-                'userid' : this.props.userId,
-                'betAmount' : oldBet
-            },
+    verifyCoinsVisibility = (betAmount) => {
+        const visibility = betAmount/50;
+        if(visibility < 1){
+            this.setState({chipsVisibility: ["hidden","hidden","hidden","hidden"]})
         }
-        axios(request)
-        .then(response => {
-            console.log(response)
-            this.setState({
-                bet : oldBet,
-                disabledButtons: [false,true,true,true],
-                chipsVisibility : response.data.visibility
-            })
+        else if(visibility <2){
+            this.setState({chipsVisibility: ["visible","hidden","hidden","hidden"]})
+        }
+        else if(visibility <10){
+            this.setState({chipsVisibility: ["visible","visible","hidden","hidden"]})
+        }
+        else if(visibility <20){
+            this.setState({chipsVisibility: ["visible","visible","visible","hidden"]})
+        } else {
+            this.setState({chipsVisibility: ["visible","visible","visible","visible"]})
+        }
+        console.log(this.state.chipsVisibility)
+    }
+    addBetHandler = (betAmount) => {
+        let oldBet = this.props.bet;
+        oldBet +=betAmount
+        console.log(oldBet)
+        this.verifyCoinsVisibility(this.props.coins-oldBet)
+        this.setState({
+            disabledButtons: [false,true,true,true],
         })
-        
-       
-        console.log(oldBet);
+        this.props.saveBetValue(oldBet)
+        this.setState({
+            bet: oldBet
+        })
+    }
+    refreshBetHandler = () => {
+        this.setState({
+            disabledButtons: [true,true,true,true],
+        })
+        this.props.saveBetValue(0)
+        this.verifyCoinsVisibility(this.props.coins)
+        this.setState({
+            bet: 0
+        })
     }
     render(){
         let showOrRedirect = (
@@ -242,7 +277,6 @@ class DeckBuilder extends Component{
                 <CardBuilder
                     playingCards={this.state.playCards}
                     flip = {this.state.flip}
-                    splitCase= {this.state.splitCase}
                 />
                 <Controller
                     cardAdded={this.addCardHandler}
@@ -252,21 +286,20 @@ class DeckBuilder extends Component{
                     disabledButtons={this.state.disabledButtons}
                     score={this.state.playScore}
                     betMoney = {this.addBetHandler}
-                    bet={this.state.bet}
                     visible = {this.state.chipsVisibility}
+                    refreshBet = {this.refreshBetHandler}
                     showDealer = {this.state.showDealer}
-                    splitCase = {this.state.splitCase}
                     showPlayer = {this.state.showPlayer}
                 />
                 <GameDecision
                     decision={this.state}
                     showScore={this.showScore}
                     userId={this.props.userId}
-                    jwt = {this.props.jwt}
-                    bet = {this.props.bet}/>
+                    jwt = {this.props.jwt}/>
             </Aux>
         )
-        if(this.state.show === false){
+        const cookies = new Cookies();
+        if(this.state.show === false || !this.props.jwt ){
             showOrRedirect = <Redirect to = {'/login'} />
         }
             return(
@@ -280,6 +313,14 @@ const mapStateToProps = state => {
     return {
         jwt : state.jwt,
         userId: state.userId,
+        coins: state.coins,
+        bet: state.bet
     }
 }
-export default connect(mapStateToProps)(withRouter(DeckBuilder));
+const mapDispatchToProps = dispatch => {
+    return {
+        saveAccountCoins : (coins) => dispatch({type: 'SAVE_COINS',coins: coins}),
+        saveBetValue : (bet) => dispatch({type: 'SAVE_BET',bet: bet})
+    }
+}
+export default connect(mapStateToProps,mapDispatchToProps)(withRouter(DeckBuilder));

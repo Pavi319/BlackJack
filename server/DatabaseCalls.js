@@ -214,6 +214,7 @@ gameWon = (app) => {
             .then(response => {
                 const oldGameWon = response.gamesWon;
                 const oldCoins = response.coins;
+                console.log(req.body.decision)
                 collection.update({_id:id},
                     {$set : {gamesWon: oldGameWon + 1, coins: oldCoins + req.body.decision.winAmountXBet*req.body.decision.bet}})
                 res.send("ok!")

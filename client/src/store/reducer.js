@@ -4,7 +4,9 @@ const initialState = {
     jwt: cookies.get('jwt'),
     userId: cookies.get('userId'),
     createdAt: cookies.get('createdAt'),
-    expiresAt: cookies.get('expiresAt')
+    expiresAt: cookies.get('expiresAt'),
+    coins: 0,
+    bet: 0
 }
 
 const reducer = (state = initialState,action) => {
@@ -29,6 +31,19 @@ const reducer = (state = initialState,action) => {
         createdAt: action.createdAt,
         expiresAt: action.expiresAt
         }
+   }
+
+   if(action.type==='SAVE_COINS') {
+    return {
+           ...state,
+           coins: action.coins
+       }
+   }
+   if(action.type === 'SAVE_BET'){
+       return {
+           ...state,
+           bet: action.bet
+       }
    }
    return state
 }
